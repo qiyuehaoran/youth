@@ -1,5 +1,5 @@
 /*
-更新时间: 2021-02-23 23:20
+更新时间: 2021-02-23 23:55
 赞赏:中青邀请码`46308484`,农妇山泉 -> 有点咸，万分感谢
 本脚本仅适用于中青看点极速版领取青豆
 食用说明请查看本仓库目录Taskconf/youth/readme.md，其中打卡挑战赛可通过Boxjs开关，报名时间为23点，早起打卡时间为早5点，报名需1000青豆押金，打卡成功可返1000+青豆，打卡失败则押金不予返还，请注意时间运行，
@@ -10,7 +10,7 @@
 const $ = new Env("中青看点")
 
 const notify = $.isNode() ? require('./sendNotify') : '';
-const youthNode = $.isNode() ? require('./youth_env') : '';
+//const youthNode = $.isNode() ? require('./youth_env') : '';
 
 // 可设置部分
 let notifyInterval = $.getdata("notifytimes")||50 //通知间隔，默认抽奖每50次通知一次，如需关闭全部通知请设为0
@@ -51,7 +51,27 @@ if (isGetCookie = typeof $request !== 'undefined') {
       artBody = artBody.split("&"),
       readTimes = readTimes.split("&")
     } else if($.isNode()){
-     await youthNode.youth_env()
+       if (process.env.YOUTH_HEADER && process.env.YOUTH_HEADER.indexOf('#') > -1) {
+        cookieYouth = process.env.YOUTH_HEADER.split('#');
+      } else if (process.env.YOUTH_HEADER && process.env.YOUTH_HEADER.indexOf('\n') > -1) {
+        cookieYouth = process.env.YOUTH_HEADER.split('\n');
+      } else {
+        cookieYouth = [process.env.YOUTH_HEADER]
+      };
+      if (process.env.YOUTH_ARTBODY && process.env.YOUTH_ARTBODY.indexOf('&') > -1) {
+        artBody = process.env.YOUTH_ARTBODY.split('&');
+      } else if (process.env.YOUTH_ARTBODY && process.env.YOUTH_ARTBODY.indexOf('\n') > -1) {
+        artBody = process.env.YOUTH_ARTBODY.split('\n');
+      } else {
+        artBody = [process.env.YOUTH_ARTBODY]
+      };
+      if (process.env.YOUTH_TIME && process.env.YOUTH_TIME.indexOf('&') > -1) {
+        readTimes = process.env.YOUTH_TIME.split('&');
+      } else if (process.env.YOUTH_TIME && process.env.YOUTH_TIME.indexOf('\n') > -1) {
+        readTimes = process.env.YOUTH_TIME.split('\n');
+      } else {
+        readTimes = [process.env.YOUTH_TIME]
+      }
     };
   Object.keys(cookieYouth).forEach((item) =>{
       if (cookieYouth[item]) {
@@ -63,8 +83,8 @@ if (isGetCookie = typeof $request !== 'undefined') {
         readArr.push(artBody[item])
       }
     });
-    Object.keys(readTime).forEach((item) =>{
-      if (readTime[item]) {
+    Object.keys(readTimes).forEach((item) =>{
+      if (readTimes[item]) {
         timeArr.push(readTime[item])
       }
     })
@@ -88,7 +108,7 @@ if (isGetCookie = typeof $request !== 'undefined') {
       myuid = cookie.match(/uid=\d+/);
       await userInfo();
       nick = nick ? nick: null;
-      $.log(`\n ********** ${nick}现金收益: ${cash}元 ********\n`);
+      $.log(`\n ********** ${nick} 现金: ${cash}元 ********\n`);
       await bonusTask();
       await TaskCenter();
       await openbox();
